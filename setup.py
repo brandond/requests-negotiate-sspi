@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 version = {}
 
-with open("aws_acl_helper/version.py") as fp:
+with open("requests_negotiate/version.py") as fp:
     exec(fp.read(), version)
 
 with open('README.md') as f:
@@ -15,7 +15,7 @@ with open('LICENSE') as f:
     license = f.read()
 
 with open('requirements.txt') as f:
-requirements = f.read().splitlines()
+    requirements = f.read().splitlines()
 
 setup(
     name='requests_negotiate',
@@ -24,7 +24,7 @@ setup(
     install_requires=requirements,
     provides=[ 'requests_negotiate' ],
     author='Brad Davidson',
-    url='https://github.com/requests/requests-ntlm',
+    url='https://github.com/brandond/requests-negotiate',
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,
     license=license,
