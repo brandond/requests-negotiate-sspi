@@ -21,8 +21,6 @@ class HttpNegotiateAuth(AuthBase):
         targeturl = urlparse(response.request.url)
         targetspn = 'http/'+targeturl.netloc.split(':')[0]
 
-        _logger.warn('Target SPN: {}'.format(targetspn))
-
         # Set up SSPI connection structure
         pkg_info = win32security.QuerySecurityPackageInfo(_package)
         clientauth = sspi.ClientAuth(_package, targetspn=targetspn)
