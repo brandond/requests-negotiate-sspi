@@ -1,11 +1,15 @@
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
-from urlparse import urlparse
 import hashlib
 import logging
 import struct
 import base64
 import sspi, sspicon, win32security
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 _logger = logging.getLogger(__name__)
 _package = 'Negotiate'
