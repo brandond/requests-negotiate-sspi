@@ -1,7 +1,7 @@
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
-from M2Crypto import EVP
 from urlparse import urlparse
+import hashlib
 import logging
 import struct
 import base64
@@ -31,9 +31,9 @@ class HttpNegotiateAuth(AuthBase):
         # and stuff it into a SEC_CHANNEL_BINDINGS structure.
         # This should be sent along in the initial handshake or Kerberos auth will fail.
         if response.peercert is not None:
-            md = EVP.MessageDigest('sha256')
+            md = hashlib.sha256()
             md.update(response.peercert)
-            appdata = 'tls-server-end-point:{}'.format(md.final())
+            appdata = 'tls-server-end-point:{}'.format(md.digest())
             cbtbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_CHANNEL_BINDINGS)
             cbtbuf.Buffer = struct.pack('LLLLLLLL{}s'.format(len(appdata)), 0, 0, 0, 0, 0, 0, len(appdata), 32, appdata)
             sec_buffer.append(cbtbuf)
