@@ -37,7 +37,7 @@ class HttpNegotiateAuth(AuthBase):
         if response.peercert is not None:
             md = hashlib.sha256()
             md.update(response.peercert)
-            appdata = 'tls-server-end-point:{}'.format(md.digest())
+            appdata = 'tls-server-end-point:'.encode('ASCII')+md.digest()
             cbtbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_CHANNEL_BINDINGS)
             cbtbuf.Buffer = struct.pack('LLLLLLLL{}s'.format(len(appdata)), 0, 0, 0, 0, 0, 0, len(appdata), 32, appdata)
             sec_buffer.append(cbtbuf)
@@ -63,7 +63,7 @@ class HttpNegotiateAuth(AuthBase):
 
         # Initial challenge auth header
         error, auth = clientauth.authorize(sec_buffer)
-        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer))
+        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
         _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
 
         # A streaming response breaks authentication.
@@ -118,7 +118,7 @@ class HttpNegotiateAuth(AuthBase):
 
         # Perform next authorization step
         error, auth = clientauth.authorize(sec_buffer)
-        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer))
+        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
         _logger.debug('Sending Response - error={} authenticated={}'.format(error, clientauth.authenticated))
 
         response3 = response2.connection.send(request, **args)
