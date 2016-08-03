@@ -82,6 +82,9 @@ class HttpNegotiateAuth(AuthBase):
                 final = response2.headers.get('WWW-Authenticate')
                 if final is not None:
                     try:
+                        # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
+                        # and we get just a bare chunk of base64 token. Not sure why.
+                        final.replace(_package, '', 1).lstrip()
                         tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
                         tokenbuf.Buffer = base64.b64decode(final)
                         sec_buffer.append(tokenbuf)
