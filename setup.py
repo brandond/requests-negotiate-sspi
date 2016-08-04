@@ -23,7 +23,7 @@ setup(
     packages=find_packages(exclude=('docs')),
     install_requires=requirements,
     provides=[ 'requests_negotiate_sspi' ],
-    author='Brad Davidson',
+    author='Brandon Davidson',
     url='https://github.com/brandond/requests-negotiate-sspi',
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,

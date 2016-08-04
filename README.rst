@@ -16,6 +16,6 @@ Usage
 .. code-block:: python
 
    import requests
-   from requests_ntlm_sspi import HTTPNegotiateAuth
+   from requests_negotiate_sspi import HTTPNegotiateAuth
 
    r = requests.get('https://iis.contoso.com', auth=HTTPNegotiateAuth())
