@@ -25,9 +25,11 @@ setup(
     provides=[ 'requests_negotiate_sspi' ],
     author='Brandon Davidson',
     url='https://github.com/brandond/requests-negotiate-sspi',
+    download_url='https://github.com/brandond/requests-negotiate-sspi/tarball/{}'.format(version['__version__']),
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,
     license=license,
+    include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
