@@ -5,10 +5,10 @@ from setuptools import setup, find_packages
 
 version = {}
 
-with open("requests_negotiate/version.py") as fp:
+with open("requests_negotiate_sspi/version.py") as fp:
     exec(fp.read(), version)
 
-with open('README.md') as f:
+with open('README.rst') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
@@ -18,13 +18,13 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='requests_negotiate',
+    name='requests_negotiate_sspi',
     version=version['__version__'],
     packages=find_packages(exclude=('docs')),
     install_requires=requirements,
-    provides=[ 'requests_negotiate' ],
+    provides=[ 'requests_negotiate_sspi' ],
     author='Brad Davidson',
-    url='https://github.com/brandond/requests-negotiate',
+    url='https://github.com/brandond/requests-negotiate-sspi',
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,
     license=license,

@@ -1,5 +1,5 @@
 import requests
-from .requests_negotiate import HttpNegotiateAuth
+from .requests_negotiate_sspi import HttpNegotiateAuth
 
 __all__ = ('HttpNegotiateAuth')
 
