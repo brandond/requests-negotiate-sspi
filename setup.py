@@ -18,7 +18,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='requests_negotiate_sspi',
+    name='requests-negotiate-sspi',
     version=version['__version__'],
     packages=find_packages(exclude=('docs')),
     install_requires=requirements,
