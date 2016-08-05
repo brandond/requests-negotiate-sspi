@@ -4,7 +4,7 @@ import hashlib
 import logging
 import struct
 import base64
-import sspi, sspicon, win32security
+import sspi, sspicon, win32security, pywintypes
 
 try:
     from urllib.parse import urlparse
@@ -13,21 +13,55 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 _package = 'Negotiate'
+_service = 'HTTP'
+_host = None
 
 class HttpNegotiateAuth(AuthBase):
-    def __init__(self):
-        pass
+    _auth_info = None
 
-    def retry_using_http_Negotiate_auth(self, response, args):
+
+    def __init__(self, username=None, password=None, domain=None, service=None, host=None):
+        """Create a new Negotiate auth handler
+
+           Args:
+            username: Username.
+            password: Password.
+            domain: NT Domain name.
+                Default: '.' for local account.
+            service: Kerberos Service type for remote Service Principal Name.
+                Default: HTTP
+            host: Host name for Service Principal Name.
+                Default: Extracted from request URI
+
+            If username and password are not specified, the user's default credentials are used.
+            This allows for single-sign-on to domain resources if the user is currently logged on
+            with a domain account.
+        """
+        if domain is None:
+            domain = '.'
+
+        if username is not None and password is not None:
+            self._auth_info = (username, domain, password)
+
+        if service is not None:
+            self._service = service
+
+        if host is not None:
+            self._host = host
+
+    def _retry_using_http_Negotiate_auth(self, response, args):
         if 'Authorization' in response.request.headers:
             return response
 
-        targeturl = urlparse(response.request.url)
-        targetspn = 'http/'+targeturl.netloc.split(':')[0]
+        if self._host is None:
+            targeturl = urlparse(response.request.url)
+            self._host = targeturl.netloc.split(':')[0]
+
+        targetspn = '{}/{}'.format(self._service, self._host)
 
         # Set up SSPI connection structure
         pkg_info = win32security.QuerySecurityPackageInfo(_package)
-        clientauth = sspi.ClientAuth(_package, targetspn=targetspn)
+        clientauth = sspi.ClientAuth(_package, targetspn=targetspn, auth_info=self._auth_info)
         sec_buffer = win32security.PySecBufferDescType()
         
         # Channel Binding Hash (aka Extended Protection for Authentication)
@@ -61,10 +95,14 @@ class HttpNegotiateAuth(AuthBase):
         if response.headers.get('set-cookie'):
             request.headers['Cookie'] = response.headers.get('set-cookie')
 
-        # Initial challenge auth header
-        error, auth = clientauth.authorize(sec_buffer)
-        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
-        _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
+        # Send initial challenge auth header
+        try:
+            error, auth = clientauth.authorize(sec_buffer)
+            request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
+            _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
+        except pywintypes.error as e:
+            _logger.error('Error calling {}: {}'.format(e[1], e[2]), exc_info=e)
+            return response
 
         # A streaming response breaks authentication.
         # This can be fixed by not streaming this request, which is safe
@@ -131,14 +169,15 @@ class HttpNegotiateAuth(AuthBase):
         response3.history.append(response2)
 
         return response3
-        
-    def response_hook(self, r, **kwargs):
+
+
+    def _response_hook(self, r, **kwargs):
         if r.status_code == 401:
             if 'negotiate' in r.headers.get('WWW-Authenticate', '').lower():
-                return self.retry_using_http_Negotiate_auth(r, kwargs)
+                return self._retry_using_http_Negotiate_auth(r, kwargs)
 
-            
+
     def __call__(self, r):
         r.headers['Connection'] = 'Keep-Alive'
-        r.register_hook('response', self.response_hook)
+        r.register_hook('response', self._response_hook)
         return r
