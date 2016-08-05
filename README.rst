@@ -18,4 +18,4 @@ Usage
    import requests
    from requests_negotiate_sspi import HttpNegotiateAuth
 
-   r = requests.get('https://iis.contoso.com', auth=HTTPNegotiateAuth())
+   r = requests.get('https://iis.contoso.com', auth=HttpNegotiateAuth())
