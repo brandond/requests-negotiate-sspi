@@ -13,12 +13,11 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 _package = 'Negotiate'
-_service = 'HTTP'
-_host = None
 
 class HttpNegotiateAuth(AuthBase):
     _auth_info = None
-
+    _service = 'HTTP'
+    _host = None
 
     def __init__(self, username=None, password=None, domain=None, service=None, host=None):
         """Create a new Negotiate auth handler
