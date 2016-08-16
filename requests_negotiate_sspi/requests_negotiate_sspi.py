@@ -54,7 +54,7 @@ class HttpNegotiateAuth(AuthBase):
 
         if self._host is None:
             targeturl = urlparse(response.request.url)
-            self._host = targeturl.netloc.split(':')[0]
+            self._host = targeturl.hostname
 
         targetspn = '{}/{}'.format(self._service, self._host)
 
