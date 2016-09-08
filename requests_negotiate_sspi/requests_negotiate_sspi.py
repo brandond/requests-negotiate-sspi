@@ -67,7 +67,7 @@ class HttpNegotiateAuth(AuthBase):
         # If this is a SSL connection, we need to hash the peer certificate, prepend the RFC5929 channel binding type,
         # and stuff it into a SEC_CHANNEL_BINDINGS structure.
         # This should be sent along in the initial handshake or Kerberos auth will fail.
-        if response.peercert is not None:
+        if hasattr(response, 'peercert') and response.peercert is not None:
             md = hashlib.sha256()
             md.update(response.peercert)
             appdata = 'tls-server-end-point:'.encode('ASCII')+md.digest()
@@ -121,7 +121,7 @@ class HttpNegotiateAuth(AuthBase):
                     try:
                         # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
                         # and we get just a bare chunk of base64 token. Not sure why.
-                        final.replace(_package, '', 1).lstrip()
+                        final = final.replace(_package, '', 1).lstrip()
                         tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
                         tokenbuf.Buffer = base64.b64decode(final)
                         sec_buffer.append(tokenbuf)
