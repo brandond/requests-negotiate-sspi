@@ -12,7 +12,6 @@ except ImportError:
     from urlparse import urlparse
 
 _logger = logging.getLogger(__name__)
-_package = 'Negotiate'
 
 class HttpNegotiateAuth(AuthBase):
     _auth_info = None
@@ -48,7 +47,7 @@ class HttpNegotiateAuth(AuthBase):
         if host is not None:
             self._host = host
 
-    def _retry_using_http_Negotiate_auth(self, response, args):
+    def _retry_using_http_Negotiate_auth(self, response, scheme, args):
         if 'Authorization' in response.request.headers:
             return response
 
@@ -59,8 +58,8 @@ class HttpNegotiateAuth(AuthBase):
         targetspn = '{}/{}'.format(self._service, self._host)
 
         # Set up SSPI connection structure
-        pkg_info = win32security.QuerySecurityPackageInfo(_package)
-        clientauth = sspi.ClientAuth(_package, targetspn=targetspn, auth_info=self._auth_info)
+        pkg_info = win32security.QuerySecurityPackageInfo(scheme)
+        clientauth = sspi.ClientAuth(scheme, targetspn=targetspn, auth_info=self._auth_info)
         sec_buffer = win32security.PySecBufferDescType()
         
         # Channel Binding Hash (aka Extended Protection for Authentication)
@@ -97,7 +96,7 @@ class HttpNegotiateAuth(AuthBase):
         # Send initial challenge auth header
         try:
             error, auth = clientauth.authorize(sec_buffer)
-            request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
+            request.headers['Authorization'] = '{} {}'.format(scheme, base64.b64encode(auth[0].Buffer).decode('ASCII'))
             _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
         except pywintypes.error as e:
             _logger.error('Error calling {}: {}'.format(e[1], e[2]), exc_info=e)
@@ -121,7 +120,7 @@ class HttpNegotiateAuth(AuthBase):
                     try:
                         # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
                         # and we get just a bare chunk of base64 token. Not sure why.
-                        final = final.replace(_package, '', 1).lstrip()
+                        final = final.replace(scheme, '', 1).lstrip()
                         tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
                         tokenbuf.Buffer = base64.b64decode(final)
                         sec_buffer.append(tokenbuf)
@@ -146,9 +145,9 @@ class HttpNegotiateAuth(AuthBase):
             request.headers['Cookie'] = response2.headers.get('set-cookie')
 
         # Extract challenge message from server
-        challenge = [val[len(_package)+1:] for val in response2.headers.get('WWW-Authenticate', '').split(', ') if _package in val]
+        challenge = [val[len(scheme)+1:] for val in response2.headers.get('WWW-Authenticate', '').split(', ') if scheme in val]
         if len(challenge) != 1:
-            raise HTTPError('Did not get exactly one {} challenge from server.'.format(_package))
+            raise HTTPError('Did not get exactly one {} challenge from server.'.format(scheme))
 
         # Add challenge to security buffer
         tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
@@ -158,7 +157,7 @@ class HttpNegotiateAuth(AuthBase):
 
         # Perform next authorization step
         error, auth = clientauth.authorize(sec_buffer)
-        request.headers['Authorization'] = '{} {}'.format(_package, base64.b64encode(auth[0].Buffer).decode('ASCII'))
+        request.headers['Authorization'] = '{} {}'.format(scheme, base64.b64encode(auth[0].Buffer).decode('ASCII'))
         _logger.debug('Sending Response - error={} authenticated={}'.format(error, clientauth.authenticated))
 
         response3 = response2.connection.send(request, **args)
@@ -172,8 +171,9 @@ class HttpNegotiateAuth(AuthBase):
 
     def _response_hook(self, r, **kwargs):
         if r.status_code == 401:
-            if 'negotiate' in r.headers.get('WWW-Authenticate', '').lower():
-                return self._retry_using_http_Negotiate_auth(r, kwargs)
+            for scheme in ('Negotiate', 'NTLM'):
+                if scheme.lower() in r.headers.get('WWW-Authenticate', '').lower():
+                    return self._retry_using_http_Negotiate_auth(r, scheme, kwargs)
 
 
     def __call__(self, r):
