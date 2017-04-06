@@ -2,6 +2,7 @@ from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 import hashlib
 import logging
+import socket
 import struct
 import base64
 import sspi, sspicon, win32security, pywintypes
@@ -54,6 +55,10 @@ class HttpNegotiateAuth(AuthBase):
         if self._host is None:
             targeturl = urlparse(response.request.url)
             self._host = targeturl.hostname
+            try:
+                self._host = socket.getaddrinfo(self._host, None, 0, 0, 0, socket.AI_CANONNAME)[0][3]
+            except socket.gaierror, e:
+                _logger.info('Skipping canonicalization of name %s due to error: %s', self._host, e)
 
         targetspn = '{}/{}'.format(self._service, self._host)
 
