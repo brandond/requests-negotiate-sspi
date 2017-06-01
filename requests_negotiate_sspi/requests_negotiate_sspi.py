@@ -57,7 +57,7 @@ class HttpNegotiateAuth(AuthBase):
             self._host = targeturl.hostname
             try:
                 self._host = socket.getaddrinfo(self._host, None, 0, 0, 0, socket.AI_CANONNAME)[0][3]
-            except socket.gaierror, e:
+            except socket.gaierror as e:
                 _logger.info('Skipping canonicalization of name %s due to error: %s', self._host, e)
 
         targetspn = '{}/{}'.format(self._service, self._host)
