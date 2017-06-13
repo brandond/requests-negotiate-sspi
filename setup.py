@@ -11,7 +11,7 @@ with open("requests_negotiate_sspi/version.py") as fp:
 with open('README.rst') as f:
     readme = f.read()
 
-with open('LICENSE') as f:
+with open('LICENSE.txt') as f:
     license = f.read()
 
 with open('requirements.txt') as f:
