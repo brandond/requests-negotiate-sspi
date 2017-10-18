@@ -1,11 +1,16 @@
-from requests.auth import AuthBase
-from requests.exceptions import HTTPError
+import base64
 import hashlib
 import logging
 import socket
 import struct
-import base64
-import sspi, sspicon, win32security, pywintypes
+
+from requests.auth import AuthBase
+from requests.exceptions import HTTPError
+
+import pywintypes
+import sspi
+import sspicon
+import win32security
 
 try:
     from urllib.parse import urlparse
@@ -13,6 +18,7 @@ except ImportError:
     from urlparse import urlparse
 
 _logger = logging.getLogger(__name__)
+
 
 class HttpNegotiateAuth(AuthBase):
     _auth_info = None
@@ -66,7 +72,7 @@ class HttpNegotiateAuth(AuthBase):
         pkg_info = win32security.QuerySecurityPackageInfo(scheme)
         clientauth = sspi.ClientAuth(scheme, targetspn=targetspn, auth_info=self._auth_info)
         sec_buffer = win32security.PySecBufferDescType()
-        
+
         # Channel Binding Hash (aka Extended Protection for Authentication)
         # If this is a SSL connection, we need to hash the peer certificate, prepend the RFC5929 channel binding type,
         # and stuff it into a SEC_CHANNEL_BINDINGS structure.
@@ -173,13 +179,11 @@ class HttpNegotiateAuth(AuthBase):
 
         return response3
 
-
     def _response_hook(self, r, **kwargs):
         if r.status_code == 401:
             for scheme in ('Negotiate', 'NTLM'):
                 if scheme.lower() in r.headers.get('WWW-Authenticate', '').lower():
                     return self._retry_using_http_Negotiate_auth(r, scheme, kwargs)
-
 
     def __call__(self, r):
         r.headers['Connection'] = 'Keep-Alive'

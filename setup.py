@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
+from os import chdir
+from os.path import abspath, dirname
 
 from setuptools import setup, find_packages
+
+chdir(dirname(abspath(__file__)))
 
 version = {}
 
@@ -22,7 +26,7 @@ setup(
     version=version['__version__'],
     packages=find_packages(exclude=('docs')),
     install_requires=requirements,
-    provides=[ 'requests_negotiate_sspi' ],
+    provides=['requests_negotiate_sspi'],
     author='Brandon Davidson',
     url='https://github.com/brandond/requests-negotiate-sspi',
     download_url='https://github.com/brandond/requests-negotiate-sspi/tarball/{}'.format(version['__version__']),
