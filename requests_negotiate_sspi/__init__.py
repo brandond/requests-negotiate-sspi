@@ -1,7 +1,7 @@
 import requests
 
 __all__ = ['requests_negotiate_sspi']
-from requests_negotiate_sspi import HttpNegotiateAuth  # noqa
+from .requests_negotiate_sspi import HttpNegotiateAuth  # noqa
 
 # Monkeypatch urllib3 to expose the peer certificate
 HTTPResponse = requests.packages.urllib3.response.HTTPResponse
