@@ -1,5 +1,10 @@
 requests-negotiate-sspi
 =======================
+.. image:: https://badge.fury.io/py/requests-negotiate-sspi.svg
+       :target: https://badge.fury.io/py/requests-negotiate-sspi
+.. image:: https://travis-ci.org/brandond/requests-negotiate-sspi.svg?branch=master
+       :target: https://travis-ci.org/brandond/requests-negotiate-sspi
+
 An implementation of HTTP Negotiate authentication for Requests.
 This module provides single-sign-on using Kerberos or NTLM using the
 Windows SSPI interface.
