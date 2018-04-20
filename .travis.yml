@@ -1,0 +1,26 @@
+---
+sudo: false
+dist: trusty
+language: python
+
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.5
+    - python: 3.6
+
+before_cache:
+  - rm -rf $HOME/.cache/pip/log
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+install:
+  - pip install --upgrade flake8
+
+script:
+  - flake8 --max-line-length 160
+
+notifications:
+  email: false
