@@ -10,9 +10,6 @@ chdir(dirname(abspath(__file__)))
 with open('README.rst') as f:
     readme = f.read()
 
-with open('LICENSE.txt') as f:
-    license = f.read()
-
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
@@ -21,13 +18,15 @@ setup(
     author_email='brad@oatmail.org',
     classifiers=[
         'Development Status :: 4 - Beta',
+        'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python',
     ],
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     extras_require={
@@ -37,7 +36,6 @@ setup(
     },
     include_package_data=True,
     install_requires=requirements,
-    license=license,
     long_description=readme,
     name='requests-negotiate-sspi',
     packages=find_packages(exclude=('docs')),
