@@ -7,11 +7,6 @@ from setuptools import setup, find_packages
 
 chdir(dirname(abspath(__file__)))
 
-version = {}
-
-with open("requests_negotiate_sspi/version.py") as fp:
-    exec(fp.read(), version)
-
 with open('README.rst') as f:
     readme = f.read()
 
@@ -23,13 +18,12 @@ with open('requirements.txt') as f:
 
 setup(
     name='requests-negotiate-sspi',
-    version=version['__version__'],
+    version_command=('git describe --tags --dirty', 'pep440-git-full'),
     packages=find_packages(exclude=('docs')),
     install_requires=requirements,
     provides=['requests_negotiate_sspi'],
     author='Brandon Davidson',
     url='https://github.com/brandond/requests-negotiate-sspi',
-    download_url='https://github.com/brandond/requests-negotiate-sspi/tarball/{}'.format(version['__version__']),
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,
     license=license,
@@ -44,4 +38,9 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
     ],
+    extras_require={
+        'dev': [
+            'setuptools-version-command',
+        ]
+    },
 )
