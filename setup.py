@@ -26,6 +26,7 @@ setup(
     url='https://github.com/brandond/requests-negotiate-sspi',
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     long_description=readme,
+    long_description_content_type='text/x-rst',
     license=license,
     include_package_data=True,
     classifiers=[
