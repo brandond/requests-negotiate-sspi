@@ -3,11 +3,11 @@
 from os import chdir
 from os.path import abspath, dirname
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 chdir(dirname(abspath(__file__)))
 
-with open('README.md') as f:
+with open('README.rst') as f:
     readme = f.read()
 
 with open('LICENSE.txt') as f:
@@ -17,18 +17,8 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='requests-negotiate-sspi',
-    version_command=('git describe --tags --dirty', 'pep440-git-full'),
-    packages=find_packages(exclude=('docs')),
-    install_requires=requirements,
-    provides=['requests_negotiate_sspi'],
     author='Brandon Davidson',
-    url='https://github.com/brandond/requests-negotiate-sspi',
-    description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
-    long_description=readme,
-    long_description_content_type='text/markdown',
-    license=license,
-    include_package_data=True,
+    author_email='brad@oatmail.org',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -39,9 +29,19 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
     ],
+    description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
     extras_require={
         'dev': [
             'setuptools-version-command',
         ]
     },
+    include_package_data=True,
+    install_requires=requirements,
+    license=license,
+    long_description=readme,
+    name='requests-negotiate-sspi',
+    packages=find_packages(exclude=('docs')),
+    provides=['requests_negotiate_sspi'],
+    url='https://github.com/brandond/requests-negotiate-sspi',
+    version_command=('git describe --tags --dirty', 'pep440-git-full'),
 )
