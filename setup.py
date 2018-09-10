@@ -29,11 +29,6 @@ setup(
         'Programming Language :: Python',
     ],
     description='This package allows for Single-Sign On HTTP Negotiate authentication using the requests library on Windows.',
-    extras_require={
-        'dev': [
-            'setuptools-version-command',
-        ]
-    },
     include_package_data=True,
     install_requires=requirements,
     long_description=readme,
