@@ -24,8 +24,9 @@ class HttpNegotiateAuth(AuthBase):
     _auth_info = None
     _service = 'HTTP'
     _host = None
+    _delegate = False
 
-    def __init__(self, username=None, password=None, domain=None, service=None, host=None):
+    def __init__(self, username=None, password=None, domain=None, service=None, host=None, delegate=False):
         """Create a new Negotiate auth handler
 
            Args:
@@ -34,9 +35,11 @@ class HttpNegotiateAuth(AuthBase):
             domain: NT Domain name.
                 Default: '.' for local account.
             service: Kerberos Service type for remote Service Principal Name.
-                Default: HTTP
+                Default: 'HTTP'
             host: Host name for Service Principal Name.
                 Default: Extracted from request URI
+            delegate: Indicates that the user's credentials are to be delegated to the server.
+                Default: False
 
             If username and password are not specified, the user's default credentials are used.
             This allows for single-sign-on to domain resources if the user is currently logged on
@@ -53,6 +56,8 @@ class HttpNegotiateAuth(AuthBase):
 
         if host is not None:
             self._host = host
+
+        self._delegate = delegate
 
     def _retry_using_http_Negotiate_auth(self, response, scheme, args):
         if 'Authorization' in response.request.headers:
@@ -72,6 +77,11 @@ class HttpNegotiateAuth(AuthBase):
         pkg_info = win32security.QuerySecurityPackageInfo(scheme)
         clientauth = sspi.ClientAuth(scheme, targetspn=targetspn, auth_info=self._auth_info)
         sec_buffer = win32security.PySecBufferDescType()
+
+        # Calling sspi.ClientAuth with scflags set requires you to specify all the flags, including defaults.
+        # We just want to add ISC_REQ_DELEGATE.
+        if self._delegate:
+            clientauth.scflags |= sspicon.ISC_REQ_DELEGATE
 
         # Channel Binding Hash (aka Extended Protection for Authentication)
         # If this is a SSL connection, we need to hash the peer certificate, prepend the RFC5929 channel binding type,
