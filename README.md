@@ -36,10 +36,14 @@ Options
 
   - `service`: Kerberos Service type for remote Service Principal
     Name.  
-    Default: HTTP
+    Default: 'HTTP'
 
   - `host`: Host name for Service Principal Name.  
     Default: Extracted from request URI
+
+  - `delegate`: Indicates that the user's credentials are to be delegated to the server.
+    Default: False
+
 
 If username and password are not specified, the user's default
 credentials are used. This allows for single-sign-on to domain resources
