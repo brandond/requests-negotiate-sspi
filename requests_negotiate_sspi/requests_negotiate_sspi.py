@@ -73,15 +73,17 @@ class HttpNegotiateAuth(AuthBase):
 
         targetspn = '{}/{}'.format(self._service, self._host)
 
+        # We request mutual auth by default
+        scflags = sspicon.ISC_REQ_MUTUAL_AUTH
+
+        if self._delegate:
+            scflags |= sspicon.ISC_REQ_DELEGATE
+
         # Set up SSPI connection structure
         pkg_info = win32security.QuerySecurityPackageInfo(scheme)
-        clientauth = sspi.ClientAuth(scheme, targetspn=targetspn, auth_info=self._auth_info)
+        clientauth = sspi.ClientAuth(scheme, targetspn=targetspn, auth_info=self._auth_info,
+                                     scflags=scflags, datarep=sspicon.SECURITY_NETWORK_DREP)
         sec_buffer = win32security.PySecBufferDescType()
-
-        # Calling sspi.ClientAuth with scflags set requires you to specify all the flags, including defaults.
-        # We just want to add ISC_REQ_DELEGATE.
-        if self._delegate:
-            clientauth.scflags |= sspicon.ISC_REQ_DELEGATE
 
         # Channel Binding Hash (aka Extended Protection for Authentication)
         # If this is a SSL connection, we need to hash the peer certificate, prepend the RFC5929 channel binding type,
