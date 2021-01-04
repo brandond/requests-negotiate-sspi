@@ -136,21 +136,20 @@ class HttpNegotiateAuth(AuthBase):
 
         # Should get another 401 if we are doing challenge-response (NTLM)
         if response2.status_code != 401:
-            if response2.status_code == 200:
-                # Kerberos may have succeeded; if so, finalize our auth context
-                final = response2.headers.get('WWW-Authenticate')
-                if final is not None:
-                    try:
-                        # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
-                        # and we get just a bare chunk of base64 token. Not sure why.
-                        final = final.replace(scheme, '', 1).lstrip()
-                        tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
-                        tokenbuf.Buffer = base64.b64decode(final)
-                        sec_buffer.append(tokenbuf)
-                        error, auth = clientauth.authorize(sec_buffer)
-                        _logger.debug('Kerberos Authentication succeeded - error={} authenticated={}'.format(error, clientauth.authenticated))
-                    except TypeError:
-                        pass
+            # Kerberos may have succeeded; if so, finalize our auth context
+            final = response2.headers.get('WWW-Authenticate')
+            if final is not None:
+                try:
+                    # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
+                    # and we get just a bare chunk of base64 token. Not sure why.
+                    final = final.replace(scheme, '', 1).lstrip()
+                    tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
+                    tokenbuf.Buffer = base64.b64decode(final.encode('ASCII'))
+                    sec_buffer.append(tokenbuf)
+                    error, auth = clientauth.authorize(sec_buffer)
+                    _logger.debug('Kerberos Authentication succeeded - error={} authenticated={}'.format(error, clientauth.authenticated))
+                except TypeError:
+                    pass
 
             # Regardless of whether or not we finalized our auth context,
             # without a 401 we've got nothing to do. Update the history and return.
