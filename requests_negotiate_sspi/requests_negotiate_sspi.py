@@ -142,7 +142,8 @@ class HttpNegotiateAuth(AuthBase):
                 try:
                     # Sometimes Windows seems to forget to prepend 'Negotiate' to the success response,
                     # and we get just a bare chunk of base64 token. Not sure why.
-                    final = final.replace(scheme, '', 1).lstrip()
+                    if final[0:len(scheme)].upper() == scheme.upper():
+                        final = final[len(scheme)+1:]
                     tokenbuf = win32security.PySecBufferType(pkg_info['MaxToken'], sspicon.SECBUFFER_TOKEN)
                     tokenbuf.Buffer = base64.b64decode(final.encode('ASCII'))
                     sec_buffer.append(tokenbuf)
