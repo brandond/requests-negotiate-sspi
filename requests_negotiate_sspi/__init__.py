@@ -1,16 +1,19 @@
 import requests
 
 __all__ = ['requests_negotiate_sspi']
-from .requests_negotiate_sspi import HttpNegotiateAuth  # noqa
+from .requests_negotiate_sspi import HttpNegotiateAuth
 
+# noinspection PyUnresolvedReferences
 # Monkeypatch urllib3 to expose the peer certificate
 HTTPResponse = requests.packages.urllib3.response.HTTPResponse
 orig_HTTPResponse__init__ = HTTPResponse.__init__
 
+# noinspection PyUnresolvedReferences
 HTTPAdapter = requests.adapters.HTTPAdapter
 orig_HTTPAdapter_build_response = HTTPAdapter.build_response
 
 
+# noinspection PyPep8Naming
 def new_HTTPResponse__init__(self, *args, **kwargs):
     orig_HTTPResponse__init__(self, *args, **kwargs)
     try:
@@ -19,6 +22,7 @@ def new_HTTPResponse__init__(self, *args, **kwargs):
         self.peercert = None
 
 
+# noinspection PyPep8Naming
 def new_HTTPAdapter_build_response(self, request, resp):
     response = orig_HTTPAdapter_build_response(self, request, resp)
     try:

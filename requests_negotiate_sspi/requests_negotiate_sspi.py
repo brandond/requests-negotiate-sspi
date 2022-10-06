@@ -3,19 +3,14 @@ import hashlib
 import logging
 import socket
 import struct
-
-from requests.auth import AuthBase
-from requests.exceptions import HTTPError
+from urllib.parse import urlparse
 
 import pywintypes
 import sspi
 import sspicon
+from requests.auth import AuthBase
+from requests.exceptions import HTTPError
 import win32security
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
 
 _logger = logging.getLogger(__name__)
 
@@ -59,7 +54,7 @@ class HttpNegotiateAuth(AuthBase):
 
         self._delegate = delegate
 
-    def _retry_using_http_Negotiate_auth(self, response, scheme, args):
+    def _retry_using_http_negotiate_auth(self, response, scheme, args):
         if 'Authorization' in response.request.headers:
             return response
 
@@ -151,7 +146,7 @@ class HttpNegotiateAuth(AuthBase):
                 except TypeError:
                     pass
 
-            # Regardless of whether or not we finalized our auth context,
+            # Regardless of whether we finalized our auth context or not,
             # without a 401 we've got nothing to do. Update the history and return.
             response2.history.append(response)
             return response2
@@ -198,7 +193,7 @@ class HttpNegotiateAuth(AuthBase):
         if r.status_code == 401:
             for scheme in ('Negotiate', 'NTLM'):
                 if scheme.lower() in r.headers.get('WWW-Authenticate', '').lower():
-                    return self._retry_using_http_Negotiate_auth(r, scheme, kwargs)
+                    return self._retry_using_http_negotiate_auth(r, scheme, kwargs)
 
     def __call__(self, r):
         r.headers['Connection'] = 'Keep-Alive'
