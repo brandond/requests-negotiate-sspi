@@ -33,7 +33,6 @@ class HttpNegotiateAuth(AuthBase):
             username: Username.
             password: Password.
             domain: NT Domain name.
-                Default: '.' for local account.
             service: Kerberos Service type for remote Service Principal Name.
                 Default: 'HTTP'
             host: Host name for Service Principal Name.
@@ -45,9 +44,6 @@ class HttpNegotiateAuth(AuthBase):
             This allows for single-sign-on to domain resources if the user is currently logged on
             with a domain account.
         """
-        if domain is None:
-            domain = '.'
-
         if username is not None and password is not None:
             self._auth_info = (username, domain, password)
 

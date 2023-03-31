@@ -25,20 +25,20 @@ r = requests.get('https://iis.contoso.com', auth=HttpNegotiateAuth())
 Options
 -------
 
-  - `username`: Username.  
+  - `username`: Username.
     Default: None
 
-  - `password`: Password.  
+  - `password`: Password.
     Default: None
 
-  - `domain`: NT Domain name.  
-    Default: '.' for local account.
+  - `domain`: NT Domain name.
+    Default: None
 
-  - `service`: Kerberos Service type for remote Service Principal
-    Name.  
+  - `service`: Kerberos Service type for remote Service Principal.
+    Name.
     Default: 'HTTP'
 
-  - `host`: Host name for Service Principal Name.  
+  - `host`: Host name for Service Principal Name.
     Default: Extracted from request URI
 
   - `delegate`: Indicates that the user's credentials are to be delegated to the server.
